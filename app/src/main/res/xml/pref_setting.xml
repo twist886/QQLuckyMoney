@@ -1,0 +1,33 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="open"
+        android:title="@string/pref_open" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:dependency="open"
+        android:key="password"
+        android:title="@string/pref_password" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="open"
+        android:key="delay"
+        android:title="@string/pref_delay" />
+
+
+    <EditTextPreference
+        android:autoText="true"
+        android:defaultValue="0"
+        android:dependency="delay"
+        android:dialogMessage="@string/input_delay_message"
+        android:inputType="number"
+        android:key="delay_time"
+        android:title="@string/pref_delay_time">
+
+    </EditTextPreference>
+
+
+</PreferenceScreen>

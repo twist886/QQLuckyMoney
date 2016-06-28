@@ -6,8 +6,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -17,12 +15,11 @@ import java.util.Map;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XC_MethodReplacement;
-import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedBridge.hookAllConstructors;
-import static de.robv.android.xposed.XposedBridge.invokeOriginalMethod;
+import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
@@ -45,9 +42,7 @@ public class Main implements IXposedHookLoadPackage {
     static Object HotChatManager = null;
     static Object BaseChatPie = null;
 
-    static boolean open = true;
-    static boolean delay = false;
-    static long delayTime = 300;
+    private static XSharedPreferences xSharedPreferences = null;
 
 
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
@@ -58,7 +53,11 @@ public class Main implements IXposedHookLoadPackage {
                 "com.tencent.mobileqq.data.MessageRecord", Boolean.TYPE, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!open) {
+                        log(String.valueOf(xSharedPreferences.getBoolean("open", false)));
+                        log(String.valueOf(xSharedPreferences.getBoolean("password", false)));
+                        log(String.valueOf(xSharedPreferences.getBoolean("delay", false)));
+                        log(String.valueOf(xSharedPreferences.getInt("delay_time", 0)));
+                        if (!xSharedPreferences.getBoolean("open", false)) {
                             return;
                         }
                         String msgtype = getObjectField(param.args[1], "msgtype").toString();
@@ -75,7 +74,7 @@ public class Main implements IXposedHookLoadPackage {
                 XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!open) {
+                        if (!xSharedPreferences.getBoolean("open", true)) {
                             return;
                         }
                         if (msgUid.equals("")) {
@@ -88,10 +87,13 @@ public class Main implements IXposedHookLoadPackage {
                         int messageType = (int) getObjectField(param.thisObject, "messageType");
 
                         if (messageType == 6) {
+                            if (!xSharedPreferences.getBoolean("password", true)) {
+                                return;
+                            }
                             Object SessionInfo = findFirstFieldByExactType(findClass("com.tencent.mobileqq.activity.BaseChatPie", loadPackageParam.classLoader), findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader)).get(BaseChatPie);
                             Object PasswdRedBagManager = findFirstFieldByExactType(BaseChatPie.getClass(), findClass("com.tencent.mobileqq.activity.qwallet.PasswdRedBagManager", loadPackageParam.classLoader)).get(BaseChatPie);
-                            if (delay) {
-                                Thread.sleep(delayTime);
+                            if (xSharedPreferences.getBoolean("delay", false)) {
+                                Thread.sleep(xSharedPreferences.getInt("delay_time", 0));
                             }
                             callMethod(PasswdRedBagManager, "b", SessionInfo, redPacketId);
                         } else if (globalcontext != null) {
@@ -119,8 +121,8 @@ public class Main implements IXposedHookLoadPackage {
                             jsonObject.put("app_info", "appid#1344242394|bargainor_id#1000030201|channel#msg");
                             jsonObject.put("come_from", 2);
                             intent.putExtra("json", jsonObject.toString());
-                            if (delay) {
-                                Thread.sleep(delayTime);
+                            if (xSharedPreferences.getBoolean("delay", false)) {
+                                Thread.sleep(xSharedPreferences.getInt("delay_time", 0));
                             }
                             globalcontext.startActivity(intent);
                         }
@@ -185,43 +187,6 @@ public class Main implements IXposedHookLoadPackage {
         );
 
 
-        findAndHookMethod("com.tencent.mobileqq.activity.BaseChatPie", loadPackageParam.classLoader, "onClick", "android.view.View", new XC_MethodReplacement() {
-
-            @Override
-            protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
-                String viewname = methodHookParam.args[0].getClass().getName();
-                if (viewname.equals("com.tencent.widget.PatchedButton")) {
-                    EditText editText = (EditText) findFirstFieldByExactType(findClass("com.tencent.mobileqq.activity.BaseChatPie", loadPackageParam.classLoader), XposedHelpers.findClass("com.tencent.widget.XEditTextEx", loadPackageParam.classLoader)).get(methodHookParam.thisObject);
-                    String command = editText.getText().toString();
-                    Context context = (Context) XposedHelpers.callStaticMethod(XposedHelpers.findClass("com.tencent.common.app.BaseApplicationImpl", loadPackageParam.classLoader), "getContext");
-                    if (command.equals("open")) {
-                        open = true;
-                        Toast.makeText(context, "红包机器人打开", Toast.LENGTH_LONG).show();
-                    } else if (command.equals("close")) {
-                        open = false;
-                        Toast.makeText(context, "红包机器人关闭", Toast.LENGTH_LONG).show();
-                    } else if (command.equals("delay")) {
-                        delay = true;
-                        Toast.makeText(context, "延时已经开启", Toast.LENGTH_LONG).show();
-                    } else if (command.equals("nodelay")) {
-                        delay = false;
-                        Toast.makeText(context, "延时已经关闭", Toast.LENGTH_LONG).show();
-                    } else if (command.matches("delay\\d{2,}")) {
-                        String tmp = command.replace("delay", "");
-                        delayTime = Long.valueOf(tmp);
-                        Toast.makeText(context, "延时设置成功: " + tmp + "毫秒", Toast.LENGTH_SHORT).show();
-                    } else if (command.equals("help")) {
-                        Toast.makeText(context, "命令说明：\nopen打开红包机器人\nclose关闭红包机器人\ndelay开启延时\nnodelay关闭延时\ndelay后面跟毫秒数设置延时\nhelp 显示本帮助", Toast.LENGTH_LONG).show();
-                    } else {
-                        return invokeOriginalMethod(methodHookParam.method, methodHookParam.thisObject, methodHookParam.args);
-                    }
-                    editText.setText("");
-                }
-                return null;
-            }
-        });
-
-
         findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", "mbw", "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
                 new XC_MethodHook() {
                     int issend;
@@ -246,32 +211,7 @@ public class Main implements IXposedHookLoadPackage {
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
         if (loadPackageParam.packageName.equals(QQ_PACKAGE_NAME)) {
-            findAndHookMethod("android.app.ApplicationPackageManager", loadPackageParam.classLoader, "getInstalledApplications", int.class, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    List<ApplicationInfo> applicationList = (List) param.getResult();
-                    List<ApplicationInfo> resultapplicationList = new ArrayList<>();
-                    for (ApplicationInfo applicationInfo : applicationList) {
-                        if (!applicationInfo.processName.contains("veryyoung")) {
-                            resultapplicationList.add(applicationInfo);
-                        }
-                    }
-                    param.setResult(resultapplicationList);
-                }
-            });
-            findAndHookMethod("android.app.ApplicationPackageManager", loadPackageParam.classLoader, "getInstalledPackages", int.class, new XC_MethodHook() {
-                @Override
-                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    List<PackageInfo> packageInfoList = (List) param.getResult();
-                    List<PackageInfo> resultpackageInfoList = new ArrayList<>();
-                    for (PackageInfo packageInfo : packageInfoList) {
-                        if (!packageInfo.packageName.contains("veryyoung")) {
-                            resultpackageInfoList.add(packageInfo);
-                        }
-                    }
-                    param.setResult(resultpackageInfoList);
-                }
-            });
+            hideModule(loadPackageParam);
 
             int ver = Build.VERSION.SDK_INT;
             if (ver < 21) {
@@ -285,9 +225,46 @@ public class Main implements IXposedHookLoadPackage {
                 dohook(loadPackageParam);
             }
 
+
+            xSharedPreferences = new XSharedPreferences(this.getClass()
+                    .getPackage().getName(), SettingsActivity.LUCKY_MONEY_SETTING);
+            xSharedPreferences.makeWorldReadable();
+            xSharedPreferences.reload();
+
+
         }
 
     }
+
+    private void hideModule(XC_LoadPackage.LoadPackageParam loadPackageParam) {
+        findAndHookMethod("android.app.ApplicationPackageManager", loadPackageParam.classLoader, "getInstalledApplications", int.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                List<ApplicationInfo> applicationList = (List) param.getResult();
+                List<ApplicationInfo> resultapplicationList = new ArrayList<>();
+                for (ApplicationInfo applicationInfo : applicationList) {
+                    if (!applicationInfo.processName.contains("veryyoung")) {
+                        resultapplicationList.add(applicationInfo);
+                    }
+                }
+                param.setResult(resultapplicationList);
+            }
+        });
+        findAndHookMethod("android.app.ApplicationPackageManager", loadPackageParam.classLoader, "getInstalledPackages", int.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                List<PackageInfo> packageInfoList = (List) param.getResult();
+                List<PackageInfo> resultpackageInfoList = new ArrayList<>();
+                for (PackageInfo packageInfo : packageInfoList) {
+                    if (!packageInfo.packageName.contains("veryyoung")) {
+                        resultpackageInfoList.add(packageInfo);
+                    }
+                }
+                param.setResult(resultpackageInfoList);
+            }
+        });
+    }
+
 
     private int getGroupType(String istroop) throws IllegalAccessException {
         int grouptype = 0;
