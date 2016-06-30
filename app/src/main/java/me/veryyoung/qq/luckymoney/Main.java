@@ -15,11 +15,9 @@ import java.util.Map;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static de.robv.android.xposed.XposedBridge.hookAllConstructors;
-import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
 import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
@@ -42,9 +40,6 @@ public class Main implements IXposedHookLoadPackage {
     static Object HotChatManager = null;
     static Object BaseChatPie = null;
 
-    private static XSharedPreferences xSharedPreferences = null;
-
-
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
 
 
@@ -53,11 +48,7 @@ public class Main implements IXposedHookLoadPackage {
                 "com.tencent.mobileqq.data.MessageRecord", Boolean.TYPE, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        log(String.valueOf(xSharedPreferences.getBoolean("open", false)));
-                        log(String.valueOf(xSharedPreferences.getBoolean("password", false)));
-                        log(String.valueOf(xSharedPreferences.getBoolean("delay", false)));
-                        log(String.valueOf(xSharedPreferences.getInt("delay_time", 0)));
-                        if (!xSharedPreferences.getBoolean("open", false)) {
+                        if (!PreferencesUtils.open()) {
                             return;
                         }
                         String msgtype = getObjectField(param.args[1], "msgtype").toString();
@@ -74,7 +65,7 @@ public class Main implements IXposedHookLoadPackage {
                 XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!xSharedPreferences.getBoolean("open", true)) {
+                        if (!PreferencesUtils.open()) {
                             return;
                         }
                         if (msgUid.equals("")) {
@@ -87,13 +78,13 @@ public class Main implements IXposedHookLoadPackage {
                         int messageType = (int) getObjectField(param.thisObject, "messageType");
 
                         if (messageType == 6) {
-                            if (!xSharedPreferences.getBoolean("password", true)) {
+                            if (!PreferencesUtils.password()) {
                                 return;
                             }
                             Object SessionInfo = findFirstFieldByExactType(findClass("com.tencent.mobileqq.activity.BaseChatPie", loadPackageParam.classLoader), findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader)).get(BaseChatPie);
                             Object PasswdRedBagManager = findFirstFieldByExactType(BaseChatPie.getClass(), findClass("com.tencent.mobileqq.activity.qwallet.PasswdRedBagManager", loadPackageParam.classLoader)).get(BaseChatPie);
-                            if (xSharedPreferences.getBoolean("delay", false)) {
-                                Thread.sleep(xSharedPreferences.getInt("delay_time", 0));
+                            if (PreferencesUtils.delay()) {
+                                Thread.sleep(PreferencesUtils.delayTime());
                             }
                             callMethod(PasswdRedBagManager, "b", SessionInfo, redPacketId);
                         } else if (globalcontext != null) {
@@ -121,8 +112,8 @@ public class Main implements IXposedHookLoadPackage {
                             jsonObject.put("app_info", "appid#1344242394|bargainor_id#1000030201|channel#msg");
                             jsonObject.put("come_from", 2);
                             intent.putExtra("json", jsonObject.toString());
-                            if (xSharedPreferences.getBoolean("delay", false)) {
-                                Thread.sleep(xSharedPreferences.getInt("delay_time", 0));
+                            if (PreferencesUtils.delay()) {
+                                Thread.sleep(PreferencesUtils.delayTime());
                             }
                             globalcontext.startActivity(intent);
                         }
@@ -224,14 +215,6 @@ public class Main implements IXposedHookLoadPackage {
             } else {
                 dohook(loadPackageParam);
             }
-
-
-            xSharedPreferences = new XSharedPreferences(this.getClass()
-                    .getPackage().getName(), SettingsActivity.LUCKY_MONEY_SETTING);
-            xSharedPreferences.makeWorldReadable();
-            xSharedPreferences.reload();
-
-
         }
 
     }
