@@ -31,7 +31,7 @@ public class PreferencesUtils {
 
 
     public static int delayTime() {
-        return Integer.parseInt(getInstance().getString("delay_time", "0"));
+        return getInstance().getInt("delay_time", 0);
     }
 }
 

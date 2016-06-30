@@ -11,6 +11,7 @@
         android:key="password"
         android:title="@string/pref_password" />
 
+
     <SwitchPreference
         android:defaultValue="false"
         android:dependency="open"
@@ -18,16 +19,11 @@
         android:title="@string/pref_delay" />
 
 
-    <EditTextPreference
-        android:autoText="true"
-        android:defaultValue="0"
+    <me.veryyoung.qq.luckymoney.SeekBarPreference
+        pref_kind="delay_time"
+        android:defaultValue="true"
         android:dependency="delay"
-        android:dialogMessage="@string/input_delay_message"
-        android:inputType="number"
-        android:key="delay_time"
-        android:title="@string/pref_delay_time">
-
-    </EditTextPreference>
-
+        android:layout="@layout/preference_checkbox"
+        android:title="@string/pref_delay_time" />
 
 </PreferenceScreen>
