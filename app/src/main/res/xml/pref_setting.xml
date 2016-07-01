@@ -1,6 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory
-        android:title="@string/setting">
+    <PreferenceCategory android:title="@string/setting">
 
         <SwitchPreference
             android:defaultValue="true"
@@ -29,18 +28,21 @@
             android:title="@string/pref_delay_time" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/about">
+    <PreferenceCategory android:title="@string/about">
         <Preference
             android:key="author"
             android:summary="veryyoung"
-            android:title="作者" />
+            android:title="作者">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/veryyoung" />
+        </Preference>
         <Preference
             android:key="donate_alipay"
             android:title="支付宝捐赠" />
-        <!--<Preference-->
-        <!--android:key="donate_wechat"-->
-        <!--android:title="微信捐赠" />-->
+        <Preference
+            android:key="donate_wechat"
+            android:title="微信捐赠" />
     </PreferenceCategory>
 
 </PreferenceScreen>
