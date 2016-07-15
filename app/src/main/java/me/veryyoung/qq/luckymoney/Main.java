@@ -228,7 +228,7 @@ public class Main implements IXposedHookLoadPackage {
                 List<ApplicationInfo> applicationList = (List) param.getResult();
                 List<ApplicationInfo> resultapplicationList = new ArrayList<>();
                 for (ApplicationInfo applicationInfo : applicationList) {
-                    if (!applicationInfo.processName.contains("veryyoung")) {
+                    if (!applicationInfo.processName.contains("veryyoung") && !applicationInfo.packageName.contains("xposed")) {
                         resultapplicationList.add(applicationInfo);
                     }
                 }
@@ -241,7 +241,7 @@ public class Main implements IXposedHookLoadPackage {
                 List<PackageInfo> packageInfoList = (List) param.getResult();
                 List<PackageInfo> resultpackageInfoList = new ArrayList<>();
                 for (PackageInfo packageInfo : packageInfoList) {
-                    if (!packageInfo.packageName.contains("veryyoung")) {
+                    if (!packageInfo.packageName.contains("veryyoung") && !packageInfo.packageName.contains("xposed")) {
                         resultpackageInfoList.add(packageInfo);
                     }
                 }
