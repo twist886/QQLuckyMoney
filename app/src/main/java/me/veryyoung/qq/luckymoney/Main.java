@@ -42,7 +42,6 @@ public class Main implements IXposedHookLoadPackage {
     static Context globalContext = null;
     static Object HotChatManager = null;
     static Object TicketManager;
-    static Object FriendsManager;
 
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
 
@@ -179,7 +178,7 @@ public class Main implements IXposedHookLoadPackage {
         );
 
 
-        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", "mbw", "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
+        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", "mjv", "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
                 new XC_MethodHook() {
                     int issend;
 
