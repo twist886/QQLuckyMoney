@@ -1,5 +1,6 @@
 package me.veryyoung.qq.luckymoney;
 
+import android.app.Activity;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.ActivityManager.RunningTaskInfo;
@@ -10,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import org.json.JSONObject;
 
@@ -37,6 +39,8 @@ import static de.robv.android.xposed.XposedHelpers.setObjectField;
 public class Main implements IXposedHookLoadPackage {
 
     private static final String QQ_PACKAGE_NAME = "com.tencent.mobileqq";
+    private static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
+
 
     static long msgUid;
     static String senderuin;
@@ -48,7 +52,6 @@ public class Main implements IXposedHookLoadPackage {
     static Object TicketManager;
 
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
-
 
         findAndHookMethod("com.tencent.mobileqq.app.MessageHandlerUtils", loadPackageParam.classLoader, "a",
                 "com.tencent.mobileqq.app.QQAppInterface",
@@ -221,9 +224,38 @@ public class Main implements IXposedHookLoadPackage {
             } else {
                 dohook(loadPackageParam);
             }
-        }
 
+
+            if (loadPackageParam.packageName.equals(WECHAT_PACKAGE_NAME)) {
+                findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        Activity activity = (Activity) param.thisObject;
+                        if (activity != null) {
+                            Intent intent = activity.getIntent();
+                            if (intent != null) {
+                                String className = intent.getComponent().getClassName();
+                                if (!TextUtils.isEmpty(className) && className.equals("com.tencent.mm.ui.LauncherUI") && intent.hasExtra("donate")) {
+                                    Intent donateIntent = new Intent();
+                                    donateIntent.setClassName(activity, "com.tencent.mm.plugin.remittance.ui.RemittanceUI");
+                                    donateIntent.putExtra("scene", 1);
+                                    donateIntent.putExtra("pay_scene", 32);
+                                    donateIntent.putExtra("scan_remittance_id", "011259012001125901201468688368254");
+                                    donateIntent.putExtra("fee", 10.0d);
+                                    donateIntent.putExtra("pay_channel", 12);
+                                    donateIntent.putExtra("receiver_name", "yang_xiongwei");
+                                    donateIntent.removeExtra("donate");
+                                    activity.startActivity(donateIntent);
+                                    activity.finish();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
+
 
     private void hideModule(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         findAndHookMethod("android.app.ApplicationPackageManager", loadPackageParam.classLoader, "getInstalledApplications", int.class, new XC_MethodHook() {
