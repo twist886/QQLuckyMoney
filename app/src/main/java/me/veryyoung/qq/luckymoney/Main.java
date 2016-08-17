@@ -13,8 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
+import static android.os.SystemClock.sleep;
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
@@ -33,6 +32,7 @@ import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findFirstFieldByExactType;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
+import static de.robv.android.xposed.XposedHelpers.newInstance;
 import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 
@@ -88,7 +88,6 @@ public class Main implements IXposedHookLoadPackage {
                             return;
                         }
 
-
                         Object mQQWalletRedPacketMsg = getObjectField(param.thisObject, "mQQWalletRedPacketMsg");
                         String redPacketId = getObjectField(mQQWalletRedPacketMsg, "redPacketId").toString();
                         String authkey = (String) getObjectField(mQQWalletRedPacketMsg, "authkey");
@@ -98,19 +97,15 @@ public class Main implements IXposedHookLoadPackage {
                         requestUrl.append("&listid=" + redPacketId);
                         requestUrl.append("&name=" + Uri.encode(""));
                         requestUrl.append("&answer=");
-                        if (istroop == 0) {
-                            requestUrl.append("&groupid=" + selfuin);
-                        } else {
-                            requestUrl.append("&groupid=" + frienduin);
-                        }
+                        requestUrl.append("&groupid=" + (istroop == 0 ? selfuin : frienduin));
                         requestUrl.append("&grouptype=" + getGroupType());
                         requestUrl.append("&groupuin=" + senderuin);
                         requestUrl.append("&authkey=" + authkey);
 
-                        Class findClass = findClass("com.tenpay.android.qqplugin.a.p", walletClassLoader);
+                        Class qqplugin = findClass("com.tenpay.android.qqplugin.a.p", walletClassLoader);
 
                         int random = Math.abs(new Random().nextInt()) % 16;
-                        String reqText = (String) callStaticMethod(findClass, "a", globalContext, Integer.valueOf(random), Boolean.valueOf(false), requestUrl.toString());
+                        String reqText = (String) callStaticMethod(qqplugin, "a", globalContext, random, false, requestUrl.toString());
                         StringBuffer hongbaoRequestUrl = new StringBuffer();
                         hongbaoRequestUrl.append("https://mqq.tenpay.com/cgi-bin/hongbao/qpay_hb_na_grap.cgi?ver=2.0&chv=3");
                         hongbaoRequestUrl.append("&req_text=" + reqText);
@@ -118,14 +113,11 @@ public class Main implements IXposedHookLoadPackage {
                         hongbaoRequestUrl.append("&skey_type=2");
                         hongbaoRequestUrl.append("&skey=" + callMethod(TicketManager, "getSkey", selfuin));
 
-                        Object pickObject = XposedHelpers.newInstance(findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader), callStaticMethod(findClass, "a", globalContext));
-                        Bundle bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
-                        String pickKey = (String) callStaticMethod(findClass, "a", globalContext, Integer.valueOf(random), callStaticMethod(findClass, "a", globalContext, bundle, new JSONObject()));
-
+                        Object pickObject = newInstance(findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader), callStaticMethod(qqplugin, "a", globalContext));
                         if (PreferencesUtils.delay()) {
-                            Thread.sleep(PreferencesUtils.delayTime());
+                            sleep(PreferencesUtils.delayTime());
                         }
-                        callStaticMethod(findClass, "a", Integer.valueOf(random), pickKey);
+                        callMethod(pickObject, "a", hongbaoRequestUrl.toString());
                     }
                 }
 
@@ -158,27 +150,6 @@ public class Main implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         HotChatManager = param.thisObject;
-                    }
-                }
-
-        );
-
-        findAndHookMethod("com.tencent.mobileqq.pluginsdk.PluginProxyActivity", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        Intent intent = (Intent) callMethod(param.thisObject, "getIntent");
-                        ClassLoader classLoader = (ClassLoader) callStaticMethod(findClass("com.tencent.mobileqq.pluginsdk.PluginStatic", loadPackageParam.classLoader), "a", param.thisObject, getObjectField(param.thisObject, "k").toString(), getObjectField(param.thisObject, "i").toString());
-                        if (intent.getStringExtra("pluginsdk_launchActivity").equals("com.tenpay.android.qqplugin.activity.GrapHbActivity")) {
-                            findAndHookMethod("com.tenpay.android.qqplugin.activity.GrapHbActivity", classLoader, "a", JSONObject.class,
-                                    new XC_MethodHook() {
-                                        @Override
-                                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                                            Object obj = getObjectField(param.thisObject, "mCloseBtn");
-                                            callMethod(param.thisObject, "finish");
-                                            callMethod(obj, "performClick");
-                                        }
-                                    });
-                        }
                     }
                 }
 
