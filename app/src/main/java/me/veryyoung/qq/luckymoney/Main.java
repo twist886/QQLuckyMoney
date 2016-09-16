@@ -42,16 +42,27 @@ public class Main implements IXposedHookLoadPackage {
     private static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
 
-    static long msgUid;
-    static String senderuin;
-    static String frienduin;
-    static int istroop;
-    static String selfuin;
-    static Context globalContext = null;
-    static Object HotChatManager = null;
-    static Object TicketManager;
+    private static long msgUid;
+    private static String senderuin;
+    private static String frienduin;
+    private static int istroop;
+    private static String selfuin;
+    private static Context globalContext = null;
+    private static Object HotChatManager = null;
+    private static Object TicketManager;
 
-    private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) {
+    private static String qqVersion = "";
+
+
+    private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
+
+        if (TextUtils.isEmpty(qqVersion)) {
+            Context context = (Context) callMethod(callStaticMethod(findClass("android.app.ActivityThread", null), "currentActivityThread", new Object[0]), "getSystemContext", new Object[0]);
+            String versionName = context.getPackageManager().getPackageInfo(loadPackageParam.packageName, 0).versionName;
+            log("Found QQ version:" + versionName);
+            qqVersion = versionName;
+            VersionParam.init(versionName);
+        }
 
         findAndHookMethod("com.tencent.mobileqq.app.MessageHandlerUtils", loadPackageParam.classLoader, "a",
                 "com.tencent.mobileqq.app.QQAppInterface",
@@ -156,7 +167,7 @@ public class Main implements IXposedHookLoadPackage {
         );
 
 
-        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", "nnv", "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
+        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", VersionParam.RedPacketDetailsViewHolderClass, "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
                 new XC_MethodHook() {
                     int issend;
 
