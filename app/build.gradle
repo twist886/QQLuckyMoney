@@ -23,15 +23,15 @@ android {
         applicationId "me.veryyoung.qq.luckymoney"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 13
-        versionName "1.0.6"
+        versionCode 14
+        versionName "1.0.7"
     }
 
     buildTypes {
         release {
             signingConfig signingConfigs.release
-            minifyEnabled false
-            shrinkResources true
+            minifyEnabled true
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
