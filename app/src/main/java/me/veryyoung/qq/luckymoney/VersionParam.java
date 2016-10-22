@@ -2,7 +2,7 @@ package me.veryyoung.qq.luckymoney;
 
 public class VersionParam {
 
-    public static String RedPacketDetailsViewHolderClass = "ncp";
+    public static String RedPacketDetailsViewHolderClass = "nfa";
 
     public static void init(String version) {
         switch (version) {
@@ -40,10 +40,10 @@ public class VersionParam {
                 RedPacketDetailsViewHolderClass = "nnv";
                 break;
             case "6.5.8":
-                RedPacketDetailsViewHolderClass = "ncp";
+                RedPacketDetailsViewHolderClass = "nfa";
                 break;
             default:
-                RedPacketDetailsViewHolderClass = "ncp";
+                RedPacketDetailsViewHolderClass = "nfa";
         }
     }
 
