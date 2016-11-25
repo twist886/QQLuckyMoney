@@ -33,7 +33,6 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findFirstFieldByExactType;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
-import static de.robv.android.xposed.XposedHelpers.setObjectField;
 
 
 public class Main implements IXposedHookLoadPackage {
@@ -166,26 +165,6 @@ public class Main implements IXposedHookLoadPackage {
 
         );
 
-
-        findAndHookMethod("com.tencent.mobileqq.activity.aio.item.QQWalletMsgItemBuilder", loadPackageParam.classLoader, "a", VersionParam.RedPacketDetailsViewHolderClass, "com.tencent.mobileqq.data.MessageForQQWalletMsg", "com.tencent.mobileqq.activity.aio.OnLongClickAndTouchListener",
-                new XC_MethodHook() {
-                    int issend;
-
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        issend = (int) getObjectField(param.args[1], "issend");
-                        if (issend != 1) {
-                            setObjectField(param.args[1], "issend", 1);
-                        }
-                    }
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        setObjectField(param.args[1], "issend", issend);
-                    }
-                }
-
-        );
     }
 
 
