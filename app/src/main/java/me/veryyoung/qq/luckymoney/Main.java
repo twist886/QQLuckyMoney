@@ -112,7 +112,7 @@ public class Main implements IXposedHookLoadPackage {
                         requestUrl.append("&groupuin=" + senderuin);
                         requestUrl.append("&authkey=" + authkey);
 
-                        Class qqplugin = findClass("com.tenpay.android.qqplugin.a.p", walletClassLoader);
+                        Class qqplugin = findClass("com.tenpay.android.qqplugin.a.q", walletClassLoader);
 
                         int random = Math.abs(new Random().nextInt()) % 16;
                         String reqText = (String) callStaticMethod(qqplugin, "a", globalContext, random, false, requestUrl.toString());
@@ -123,7 +123,8 @@ public class Main implements IXposedHookLoadPackage {
                         hongbaoRequestUrl.append("&skey_type=2");
                         hongbaoRequestUrl.append("&skey=" + callMethod(TicketManager, "getSkey", selfuin));
 
-                        Object pickObject = newInstance(findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader), callStaticMethod(qqplugin, "a", globalContext));
+                        Class<?> walletClass = findClass("com.tenpay.android.qqplugin.b.d", walletClassLoader);
+                        Object pickObject = newInstance(walletClass, callStaticMethod(qqplugin, "a", globalContext));
                         if (PreferencesUtils.delay()) {
                             sleep(PreferencesUtils.delayTime());
                         }
