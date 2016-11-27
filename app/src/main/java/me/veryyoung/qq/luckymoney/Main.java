@@ -112,7 +112,7 @@ public class Main implements IXposedHookLoadPackage {
                         requestUrl.append("&groupuin=" + senderuin);
                         requestUrl.append("&authkey=" + authkey);
 
-                        Class qqplugin = findClass("com.tenpay.android.qqplugin.a.q", walletClassLoader);
+                        Class qqplugin = findClass(VersionParam.QQPluginClass, walletClassLoader);
 
                         int random = Math.abs(new Random().nextInt()) % 16;
                         String reqText = (String) callStaticMethod(qqplugin, "a", globalContext, random, false, requestUrl.toString());
