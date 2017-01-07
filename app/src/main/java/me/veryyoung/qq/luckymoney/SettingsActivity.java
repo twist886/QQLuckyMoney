@@ -38,7 +38,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     /**
-     * A placeholder fragment containing a settings view.
+     * A placeholder fragment containing generateKey settings view.
      */
     public static class SettingsFragment extends PreferenceFragment {
 
