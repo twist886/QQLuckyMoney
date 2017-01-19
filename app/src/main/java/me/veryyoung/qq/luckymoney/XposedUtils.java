@@ -1,5 +1,6 @@
 package me.veryyoung.qq.luckymoney;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -37,4 +38,19 @@ public class XposedUtils {
         }
         throw new NoSuchMethodError();
     }
+
+    public static Field findFieldByClassAndTypeAndName(Class<?> targetObject, Class<?> fieldType, String fieldName) {
+        Class clazz = targetObject;
+        do {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.getType() == fieldType && field.getName().equals(fieldName)) {
+                    field.setAccessible(true);
+                    return field;
+                }
+            }
+            clazz = clazz.getSuperclass();
+        } while (clazz != null);
+        throw new NoSuchFieldError("Field of type " + fieldType.getName() + " in class " + targetObject.getName());
+    }
+
 }

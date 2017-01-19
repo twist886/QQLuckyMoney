@@ -25,6 +25,10 @@ public class PreferencesUtils {
         return getInstance().getBoolean("password", false);
     }
 
+    public static boolean sendPassword() {
+        return getInstance().getBoolean("send_password", false);
+    }
+
     public static boolean delay() {
         return getInstance().getBoolean("delay", false);
     }

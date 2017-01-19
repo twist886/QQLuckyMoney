@@ -12,6 +12,11 @@
             android:key="password"
             android:title="@string/pref_password" />
 
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="password"
+            android:key="send_password"
+            android:title="@string/pref_send_password" />
 
         <SwitchPreference
             android:defaultValue="false"

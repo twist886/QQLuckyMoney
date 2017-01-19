@@ -11,6 +11,7 @@ import android.text.TextUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
@@ -32,6 +33,7 @@ import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
 import static java.lang.String.valueOf;
 import static me.veryyoung.qq.luckymoney.HideModule.hideModule;
+import static me.veryyoung.qq.luckymoney.XposedUtils.findFieldByClassAndTypeAndName;
 import static me.veryyoung.qq.luckymoney.XposedUtils.findResultByMethodNameAndReturnTypeAndParams;
 
 
@@ -50,6 +52,8 @@ public class Main implements IXposedHookLoadPackage {
     private static Object HotChatManager;
     private static Object TicketManager;
     private static Object TroopManager;
+    static Object globalQQInterface = null;
+
     private static int n = 1;
 
 
@@ -109,6 +113,18 @@ public class Main implements IXposedHookLoadPackage {
                             sleep(PreferencesUtils.delayTime());
                         }
                         callMethod(pickObject, "a", hongbaoRequestUrl.toString());
+                        if (6 == messageType && PreferencesUtils.sendPassword()) {
+                            Object SessionInfo = newInstance(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader));
+                            findFieldByClassAndTypeAndName(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader), String.class, "a").set(SessionInfo, frienduin);
+                            findFieldByClassAndTypeAndName(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader), Integer.TYPE, "a").setInt(SessionInfo, istroop);
+                            Object QQWalletTransferMsgElem = XposedHelpers.getObjectField(mQQWalletRedPacketMsg, "elem");
+                            String password = XposedHelpers.getObjectField(QQWalletTransferMsgElem, "title").toString();
+
+                            Object messageParam = newInstance(findClass("com.tencent.mobileqq.activity.ChatActivityFacade$SendMsgParams", loadPackageParam.classLoader));
+                            callStaticMethod(findClass("com.tencent.mobileqq.activity.ChatActivityFacade", loadPackageParam.classLoader), "a", globalQQInterface, globalContext, SessionInfo, password, new ArrayList(), messageParam);
+                        }
+
+
                     }
                 }
 
@@ -143,6 +159,8 @@ public class Main implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         globalContext = (Context) param.thisObject;
+                        globalQQInterface = findFirstFieldByExactType(findClass("com.tencent.mobileqq.activity.SplashActivity", loadPackageParam.classLoader), findClass("com.tencent.mobileqq.app.QQAppInterface", loadPackageParam.classLoader)).get(param.thisObject);
+
                     }
                 }
 
