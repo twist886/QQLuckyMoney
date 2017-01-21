@@ -7,10 +7,12 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
-import android.widget.*;
-import android.os.*;
-import org.json.*;
+import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -25,6 +27,7 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 import static android.os.SystemClock.sleep;
+import static android.widget.Toast.LENGTH_LONG;
 import static de.robv.android.xposed.XposedBridge.log;
 import static de.robv.android.xposed.XposedHelpers.callMethod;
 import static de.robv.android.xposed.XposedHelpers.callStaticMethod;
@@ -34,7 +37,6 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findFirstFieldByExactType;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
-import static de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import static java.lang.String.valueOf;
 import static me.veryyoung.qq.luckymoney.HideModule.hideModule;
 import static me.veryyoung.qq.luckymoney.XposedUtils.findFieldByClassAndTypeAndName;
@@ -56,23 +58,9 @@ public class Main implements IXposedHookLoadPackage {
     private static Object TicketManager;
     private static Object TroopManager;
     private static Object globalQQInterface = null;
-    private static Bundle bundle;
-    private static Object callStaticMethod;
     private static int n = 1;
     private static String qqVersion = "";
-    JSONObject jSONObject = new JSONObject();
-    private void toast(LoadPackageParam loadPackageParam, final String str)
-    {
-    	final Context context = (Context) callStaticMethod(findClass("com.tencent.common.app.BaseApplicationImpl", loadPackageParam.classLoader), "getContext", new Object[0]);
-    	new Handler(Looper.getMainLooper()).post(new Runnable() {
-    	public void run()
-    	{
-    	  if(PreferencesUtils.amount()){
-    	  Toast.makeText(context, str, 0).show();
-    			}
-    	        }
-    	}
-    );}
+
 
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
@@ -126,17 +114,12 @@ public class Main implements IXposedHookLoadPackage {
                         if (PreferencesUtils.delay()) {
                             sleep(PreferencesUtils.delayTime());
                         }
-                        try
-                        {
-                          bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
-                          callStaticMethod = callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, bundle,jSONObject});
-                          double d = ((double) new JSONObject(XposedHelpers.callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, Integer.valueOf(random), callStaticMethod}).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
-                          Main.this.toast(loadPackageParam, d + "Ôª");
-                        }
-                        catch (Exception e2)
-                        {
-                          Main.this.toast(loadPackageParam, "Ã»ÇÀµ½");
-                          e2.printStackTrace();
+                        try {
+                            Bundle bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
+                            double d = ((double) new JSONObject(callStaticMethod(qqplugin, "a", globalContext, random, callStaticMethod(qqplugin, "a", globalContext, bundle, new JSONObject())).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
+                            toast("QQ红包帮你抢到了" + d + "元");
+                        } catch (Exception e2) {
+                            toast("没抢到");
                         }
                         if (6 == messageType && PreferencesUtils.sendPassword()) {
                             Object SessionInfo = newInstance(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader));
@@ -325,6 +308,18 @@ public class Main implements IXposedHookLoadPackage {
         }
         stringBuilder.append(count);
         return stringBuilder.toString();
+    }
+
+    private void toast(final String content) {
+        if (PreferencesUtils.amount()) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(globalContext, content, LENGTH_LONG).show();
+                }
+            });
+
+        }
     }
 
 
