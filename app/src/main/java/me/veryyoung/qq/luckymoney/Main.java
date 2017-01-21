@@ -56,8 +56,8 @@ public class Main implements IXposedHookLoadPackage {
     private static Object TicketManager;
     private static Object TroopManager;
     private static Object globalQQInterface = null;
-	private static Bundle bundle;
-	private static Object callStaticMethod;
+    private static Bundle bundle;
+    private static Object callStaticMethod;
     private static int n = 1;
     private static String qqVersion = "";
     JSONObject jSONObject = new JSONObject();
@@ -65,12 +65,12 @@ public class Main implements IXposedHookLoadPackage {
     {
     	final Context context = (Context) callStaticMethod(findClass("com.tencent.common.app.BaseApplicationImpl", loadPackageParam.classLoader), "getContext", new Object[0]);
     	new Handler(Looper.getMainLooper()).post(new Runnable() {
-    		public void run()
-    		{
-    			if(PreferencesUtils.amount()){
-    				Toast.makeText(context, str, 0).show();
+    	public void run()
+    	{
+    	  if(PreferencesUtils.amount()){
+    	  Toast.makeText(context, str, 0).show();
     			}
-    		}
+    	        }
     	}
     );}
 
@@ -128,15 +128,15 @@ public class Main implements IXposedHookLoadPackage {
                         }
                         try
                         {
-                        	bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
-                        	callStaticMethod = callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, bundle,jSONObject});
-                        	double d = ((double) new JSONObject(XposedHelpers.callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, Integer.valueOf(random), callStaticMethod}).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
-                        	Main.this.toast(loadPackageParam, d + "Ԫ");
+                          bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
+                          callStaticMethod = callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, bundle,jSONObject});
+                          double d = ((double) new JSONObject(XposedHelpers.callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, Integer.valueOf(random), callStaticMethod}).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
+                          Main.this.toast(loadPackageParam, d + "Ôª");
                         }
                         catch (Exception e2)
                         {
-                        	Main.this.toast(loadPackageParam, "û����");
-                        	e2.printStackTrace();
+                          Main.this.toast(loadPackageParam, "Ã»ÇÀµ½");
+                          e2.printStackTrace();
                         }
                         if (6 == messageType && PreferencesUtils.sendPassword()) {
                             Object SessionInfo = newInstance(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader));
