@@ -18,15 +18,19 @@ public class PreferencesUtils {
     }
 
     public static boolean open() {
-        return getInstance().getBoolean("open", false);
+        return getInstance().getBoolean("open", true);
+    }
+    
+    public static boolean amount() {
+    	return getInstance().getBoolean("amount", true);
     }
 
     public static boolean password() {
-        return getInstance().getBoolean("password", false);
+        return getInstance().getBoolean("password", true);
     }
 
     public static boolean sendPassword() {
-        return getInstance().getBoolean("send_password", false);
+        return getInstance().getBoolean("send_password", true);
     }
 
     public static boolean delay() {

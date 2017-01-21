@@ -9,6 +9,12 @@
         <SwitchPreference
             android:defaultValue="true"
             android:dependency="open"
+            android:key="amount"
+            android:title="@string/pref_amount" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="open"
             android:key="password"
             android:title="@string/pref_password" />
 
