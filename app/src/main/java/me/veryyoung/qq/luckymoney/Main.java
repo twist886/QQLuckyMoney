@@ -8,6 +8,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.widget.*;
+import android.os.*;
+import org.json.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
@@ -31,6 +34,7 @@ import static de.robv.android.xposed.XposedHelpers.findClass;
 import static de.robv.android.xposed.XposedHelpers.findFirstFieldByExactType;
 import static de.robv.android.xposed.XposedHelpers.getObjectField;
 import static de.robv.android.xposed.XposedHelpers.newInstance;
+import static de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import static java.lang.String.valueOf;
 import static me.veryyoung.qq.luckymoney.HideModule.hideModule;
 import static me.veryyoung.qq.luckymoney.XposedUtils.findFieldByClassAndTypeAndName;
@@ -42,7 +46,6 @@ public class Main implements IXposedHookLoadPackage {
     public static final String QQ_PACKAGE_NAME = "com.tencent.mobileqq";
     private static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
-
     private static long msgUid;
     private static String senderuin;
     private static String frienduin;
@@ -52,13 +55,24 @@ public class Main implements IXposedHookLoadPackage {
     private static Object HotChatManager;
     private static Object TicketManager;
     private static Object TroopManager;
-    static Object globalQQInterface = null;
-
+    private static Object globalQQInterface = null;
+	private static Bundle bundle;
+	private static Object callStaticMethod;
     private static int n = 1;
-
-
     private static String qqVersion = "";
-
+    JSONObject jSONObject = new JSONObject();
+    private void toast(LoadPackageParam loadPackageParam, final String str)
+    {
+    	final Context context = (Context) callStaticMethod(findClass("com.tencent.common.app.BaseApplicationImpl", loadPackageParam.classLoader), "getContext", new Object[0]);
+    	new Handler(Looper.getMainLooper()).post(new Runnable() {
+    		public void run()
+    		{
+    			if(PreferencesUtils.amount()){
+    				Toast.makeText(context, str, 0).show();
+    			}
+    		}
+    	}
+    );}
 
     private void dohook(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
@@ -112,7 +126,18 @@ public class Main implements IXposedHookLoadPackage {
                         if (PreferencesUtils.delay()) {
                             sleep(PreferencesUtils.delayTime());
                         }
-                        callMethod(pickObject, "a", hongbaoRequestUrl.toString());
+                        try
+                        {
+                        	bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
+                        	callStaticMethod = callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, bundle,jSONObject});
+                        	double d = ((double) new JSONObject(XposedHelpers.callStaticMethod(qqplugin, "a", new Object[]{Main.globalContext, Integer.valueOf(random), callStaticMethod}).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
+                        	Main.this.toast(loadPackageParam, d + "Ôª");
+                        }
+                        catch (Exception e2)
+                        {
+                        	Main.this.toast(loadPackageParam, "Ã»ÇÀµ½");
+                        	e2.printStackTrace();
+                        }
                         if (6 == messageType && PreferencesUtils.sendPassword()) {
                             Object SessionInfo = newInstance(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader));
                             findFieldByClassAndTypeAndName(findClass("com.tencent.mobileqq.activity.aio.SessionInfo", loadPackageParam.classLoader), String.class, "a").set(SessionInfo, frienduin);
@@ -123,11 +148,8 @@ public class Main implements IXposedHookLoadPackage {
                             Object messageParam = newInstance(findClass("com.tencent.mobileqq.activity.ChatActivityFacade$SendMsgParams", loadPackageParam.classLoader));
                             callStaticMethod(findClass("com.tencent.mobileqq.activity.ChatActivityFacade", loadPackageParam.classLoader), "a", globalQQInterface, globalContext, SessionInfo, password, new ArrayList(), messageParam);
                         }
-
-
                     }
                 }
-
         );
 
 
