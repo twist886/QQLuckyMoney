@@ -24,6 +24,9 @@ public class VersionParam {
             case "6.6.1":
             case "6.6.2":
             case "6.6.5":
+            case "6.6.6": 
+            case "6.6.8":
+            case "6.6.9":
                 QQPluginClass = "com.tenpay.android.qqplugin.a.q";
                 break;
             default:
