@@ -233,9 +233,8 @@ public class Main implements IXposedHookLoadPackage {
                                 donateIntent.setClassName(activity, "com.tencent.mm.plugin.remittance.ui.RemittanceUI");
                                 donateIntent.putExtra("scene", 1);
                                 donateIntent.putExtra("pay_scene", 32);
-                                donateIntent.putExtra("scan_remittance_id", "011259012001125901201468688368254");
                                 donateIntent.putExtra("fee", 10.0d);
-                                donateIntent.putExtra("pay_channel", 12);
+                                donateIntent.putExtra("pay_channel", 13);
                                 donateIntent.putExtra("receiver_name", "yang_xiongwei");
                                 donateIntent.removeExtra("donate");
                                 activity.startActivity(donateIntent);
