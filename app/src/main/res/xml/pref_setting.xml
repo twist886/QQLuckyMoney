@@ -24,7 +24,7 @@
             android:key="send_password"
             android:title="@string/pref_send_password" />
 
-		<SwitchPreference
+	<SwitchPreference
             android:defaultValue="false"
             android:dependency="open"
             android:key="reply"
@@ -35,13 +35,13 @@
             android:key="reply1"
             android:title="@string/pref_reply1" />
 		
-		<SwitchPreference
+	<SwitchPreference
             android:defaultValue="false"
             android:dependency="open"
             android:key="reply2"
             android:title="@string/pref_reply2" />
 		
-		<EditTextPreference
+	<EditTextPreference
             android:dependency="reply2"
             android:key="reply3"
             android:title="@string/pref_reply3" />
