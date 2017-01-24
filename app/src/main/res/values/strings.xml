@@ -6,10 +6,10 @@
     <string name="pref_delay_time">延时时长</string>
     <string name="pref_password">口令红包</string>
     <string name="pref_send_password">发送口令</string>
-	<string name="pref_reply">抢到自动回复</string>
-	<string name="pref_reply1">抢到自动回复语</string>
-	<string name="pref_reply2">没抢到自动回复</string>
-	<string name="pref_reply3">没抢到自动回复语</string>
+    <string name="pref_reply">抢到自动回复</string>
+    <string name="pref_reply1">抢到自动回复语</string>
+    <string name="pref_reply2">没抢到自动回复</string>
+    <string name="pref_reply3">没抢到自动回复语</string>
     <string name="delay_message">延迟0毫秒拆开红包</string>
     <string name="setting">设置</string>
     <string name="about">关于</string>
