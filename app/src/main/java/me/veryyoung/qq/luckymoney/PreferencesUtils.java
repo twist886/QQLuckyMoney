@@ -33,21 +33,21 @@ public class PreferencesUtils {
         return getInstance().getBoolean("send_password", true);
     }
 
-	public static boolean reply() {
-		return getInstance().getBoolean("reply", false);
-	}
+    public static boolean reply() {
+	return getInstance().getBoolean("reply", false);
+    }
 	
-	public static boolean reply2() {
-	    return getInstance().getBoolean("reply2", false);
-	}
+    public static boolean reply2() {
+	return getInstance().getBoolean("reply2", false);
+    }
 	
-	public static String reply1() {
+    public static String reply1() {
      	return getInstance().getString("reply1", "");
-	}
+    }
 	
-	public static String reply3() {
-		return getInstance().getString("reply3", "");
-	}	
+    public static String reply3() {
+	return getInstance().getString("reply3", "");
+    }	
 	
     public static boolean delay() {
         return getInstance().getBoolean("delay", false);
