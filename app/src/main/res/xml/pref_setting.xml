@@ -17,7 +17,7 @@
             android:dependency="open"
             android:key="we"
             android:title="@string/pref_we" />
-            
+
         <ListPreference
             android:defaultValue="0"
             android:dependency="password"
@@ -25,7 +25,7 @@
             android:entryValues="@array/password1"
             android:key="password"
             android:title="@string/password" />
-            
+
         <ListPreference
             android:defaultValue="0"
             android:dependency="reply"
@@ -33,31 +33,31 @@
             android:entryValues="@array/reply1"
             android:key="reply"
             android:title="@string/reply" />
-            
+
         <EditTextPreference
             android:dependency="open"
             android:hint="@string/reply1_hit"
             android:key="reply1"
             android:title="@string/reply1" />
-            
+
         <EditTextPreference
             android:dependency="open"
             android:hint="@string/reply2_hit"
             android:key="reply2"
             android:title="@string/reply2" />
-            
-        <EditTextPreference
-            android:dependency="open"
-            android:hint="@string/keywords_hit"
-            android:key="keywords"
-            android:title="@string/keywords" />
-            
+
         <EditTextPreference
             android:dependency="open"
             android:hint="@string/group_hit"
             android:key="group"
             android:title="@string/group" />
-            
+
+        <EditTextPreference
+            android:dependency="open"
+            android:hint="@string/keywords_hit"
+            android:key="keywords"
+            android:title="@string/keywords" />
+
         <SwitchPreference
             android:defaultValue="false"
             android:dependency="open"
