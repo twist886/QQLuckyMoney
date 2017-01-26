@@ -20,7 +20,7 @@
 
         <ListPreference
             android:defaultValue="0"
-            android:dependency="password"
+            android:dependency="open"
             android:entries="@array/password"
             android:entryValues="@array/password1"
             android:key="password"
@@ -28,7 +28,7 @@
 
         <ListPreference
             android:defaultValue="0"
-            android:dependency="reply"
+            android:dependency="open"
             android:entries="@array/reply"
             android:entryValues="@array/reply1"
             android:key="reply"
