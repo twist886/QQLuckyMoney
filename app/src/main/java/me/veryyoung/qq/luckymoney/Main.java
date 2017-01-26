@@ -97,7 +97,7 @@ public class Main implements IXposedHookLoadPackage {
                         if (!TextUtils.isEmpty(group)) {
                             for (String group1 : group.split(",")) {
                                 if (frienduin.equals(group1)) {
-                                    toast("指定群不抢");
+                                    toast("指定群/人不抢");
                                     return;
                                 }
                             }
