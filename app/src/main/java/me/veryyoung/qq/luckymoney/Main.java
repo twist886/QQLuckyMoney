@@ -93,6 +93,10 @@ public class Main implements IXposedHookLoadPackage {
                           return;
                         }
                         
+                        if (messageType == 2 && istroop == 0) {
+                            return;
+                        }
+
                         String group = PreferencesUtils.group();
                         if (!TextUtils.isEmpty(group)) {
                             for (String group1 : group.split(",")) {
@@ -146,12 +150,20 @@ public class Main implements IXposedHookLoadPackage {
                         try {
                             Bundle bundle = (Bundle) callMethod(pickObject, "a", hongbaoRequestUrl.toString());
                             double d = ((double) new JSONObject(callStaticMethod(qqplugin, "a", globalContext, random, callStaticMethod(qqplugin, "a", globalContext, bundle, new JSONObject())).toString()).getJSONObject("recv_object").getInt("amount")) / 100.0d;
+                            if(messageType == 8) {
+                            toast("自己的专享红包，抢到了"+d+"元");
+                            } else {
                             toast("QQ红包帮你抢到了" + d + "元");
+                            }
                             if(PreferencesUtils.reply()==1 || PreferencesUtils.reply()==3  && !TextUtils.isEmpty(PreferencesUtils.reply1())) {
                               callStaticMethod(findClass("com.tencent.mobileqq.activity.ChatActivityFacade", loadPackageParam.classLoader), "a", globalQQInterface, globalContext, SessionInfo, PreferencesUtils.reply1(), new ArrayList(), messageParam);                             
                             }
                         } catch (Exception e2) {
+                            if (messageType == 8) {
+                            toast("别人的专享红包，抢不到");
+                            } else {
                             toast("没抢到");
+                            }
                             if(PreferencesUtils.reply()==2 || PreferencesUtils.reply()==3  && !TextUtils.isEmpty(PreferencesUtils.reply2())) {
                               callStaticMethod(findClass("com.tencent.mobileqq.activity.ChatActivityFacade", loadPackageParam.classLoader), "a", globalQQInterface, globalContext, SessionInfo, PreferencesUtils.reply2(), new ArrayList(), messageParam);                             
                             }
