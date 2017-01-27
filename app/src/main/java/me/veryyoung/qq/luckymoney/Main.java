@@ -162,10 +162,10 @@ public class Main implements IXposedHookLoadPackage {
                             if (messageType == 8) {
                             toast("别人的专享红包，抢不到");
                             } else {
-                            toast("没抢到");
-                            }
                             if(PreferencesUtils.reply()==2 || PreferencesUtils.reply()==3  && !TextUtils.isEmpty(PreferencesUtils.reply2())) {
                               callStaticMethod(findClass("com.tencent.mobileqq.activity.ChatActivityFacade", loadPackageParam.classLoader), "a", globalQQInterface, globalContext, SessionInfo, PreferencesUtils.reply2(), new ArrayList(), messageParam);                             
+                            }
+                            toast("没抢到");
                             }
                         }
                         if (6 == messageType && PreferencesUtils.password()==1) {
